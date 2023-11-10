@@ -57,8 +57,14 @@ tasks {
 jib {
     from {
         image = "arm64v8/eclipse-temurin"
+        platforms {
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
     }
     to {
-        image = "ghcr.io/5v715/certbot-gandi:latest"
+        image = "ghcr.io/5v715/stansted:latest"
     }
 }
