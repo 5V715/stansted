@@ -53,3 +53,12 @@ tasks {
         }
     }
 }
+
+jib {
+    from {
+        image = "arm64v8/eclipse-temurin"
+    }
+    to {
+        image = "ghcr.io/5v715/certbot-gandi:latest"
+    }
+}

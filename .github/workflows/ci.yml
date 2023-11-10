@@ -1,0 +1,21 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: installing JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 'temurin'
+          distribution: '17'
+      - name: 'prepare gradle'
+        uses: gradle/gradle-build-action@v2
+      - name: 'run gradle'
+        shell: bash
+        run: ./gradlew jib -Djib.to.auth.username=${{ secrets.REPO_USER }} -Djib.to.auth.password=${{ secrets.REPO_TOKEN }}

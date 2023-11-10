@@ -4,6 +4,7 @@ import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import dev.silas.api.CreateLinkRequest
+import dev.silas.api.toResponse
 import dev.silas.database.LinkRepository
 import dev.silas.domain.Link
 import dev.silas.util.RandomAlphaNumeric
@@ -18,15 +19,15 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import io.r2dbc.spi.R2dbcDataIntegrityViolationException
 import kotlinx.serialization.json.Json
 
 object App {
 
-    val config = ConfigLoader.builder()
+    private val config = ConfigLoader.builder()
         .addPropertySources(
             listOf(
                 EnvironmentVariablesPropertySource(
@@ -56,21 +57,29 @@ object App {
                     val request = call.receive<CreateLinkRequest>()
                     val shortUrl = when (request.shortUrl) {
                         is String -> request.shortUrl
-                        else -> RandomAlphaNumeric(6)
+                        else -> RandomAlphaNumeric(shortLinkLength)
                     }
-                    val ids =
+                    runCatching {
                         linkRepository.insert(LinkRepository.NewLink(shortUrl = shortUrl, fullUrl = request.fullUrl))
-                    call.respondText("created $ids", status = HttpStatusCode.Created)
+                    }.onFailure {
+                        when (it) {
+                            is R2dbcDataIntegrityViolationException -> call.respond(HttpStatusCode.Conflict)
+                            else -> call.respond(HttpStatusCode.BadRequest)
+                        }
+                        call.respond(HttpStatusCode.BadRequest)
+                    }.onSuccess {
+                        call.respond(HttpStatusCode.Accepted, it!!.toResponse())
+                    }
                 }
                 get("/") {
-                    call.respondText("got ${LinkRepository().getAll()}")
+                    call.respond(linkRepository.getAll()!!.map { it.toResponse() })
                 }
                 get("/{shortUrl}") {
                     when (val param = call.parameters["shortUrl"]) {
                         is String -> when (val link = linkRepository.findByShortUrl(param)) {
                             is Link -> with(call.response) {
                                 status(HttpStatusCode.PermanentRedirect)
-                                header(HttpHeaders.Location, link.fullFull)
+                                header(HttpHeaders.Location, link.fullUrl)
                             }
 
                             else -> call.respond(HttpStatusCode.NotFound)

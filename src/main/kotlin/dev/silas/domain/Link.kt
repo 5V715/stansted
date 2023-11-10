@@ -6,6 +6,6 @@ import java.util.*
 data class Link(
     val id: UUID,
     val shortUrl: String,
-    val fullFull: String,
+    val fullUrl: String,
     val hits: BigInteger
 )

@@ -1,41 +1,28 @@
 package dev.silas
 
 import dev.silas.database.LinkRepository
+import io.r2dbc.pool.ConnectionPool
+import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
-import io.r2dbc.spi.Row
-import io.r2dbc.spi.RowMetadata
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.flywaydb.core.Flyway
+import java.time.Duration
 
 interface DatabaseMigration {
     val flyway: Flyway
 }
 
 interface DatabaseConnectionPool {
-    val connectionFactory: PostgresqlConnectionFactory
+    val connectionPool: ConnectionPool
 }
 
 interface LinkRepositoryAccess {
     val linkRepository: LinkRepository
 }
 
-abstract class DatabaseAccess {
-    context(DatabaseConnectionPool)
-    suspend fun <T> runQuery(query: String, mapping: (Row, RowMetadata) -> T): List<T>? =
-        connectionFactory.create()
-            .flatMapMany { connections ->
-                connections
-                    .createStatement(query)
-                    .execute().flatMap { result ->
-                        result.map(mapping)
-                    }
-            }.collectList()
-            .awaitSingleOrNull()
-}
-
 data class Config(
-    val postgres: DatabaseSettings = DatabaseSettings()
+    val postgres: DatabaseSettings = DatabaseSettings(),
+    val shortLinkLength: Int = 6
 ) : DatabaseMigration, DatabaseConnectionPool, LinkRepositoryAccess {
 
     override val flyway: Flyway by lazy {
@@ -51,9 +38,9 @@ data class Config(
         }
     }
 
-    override val connectionFactory by lazy {
+    override val connectionPool by lazy {
         with(postgres) {
-            PostgresqlConnectionFactory(
+            val connectionFactory = PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
                     .host(hostname)
                     .port(port)
@@ -62,6 +49,12 @@ data class Config(
                     .database(database) // optional
                     .build()
             )
+
+            val configuration = ConnectionPoolConfiguration.builder(connectionFactory)
+                .maxIdleTime(Duration.ofMillis(1000))
+                .maxSize(poolSize)
+                .build()
+            ConnectionPool(configuration)
         }
     }
 
@@ -70,7 +63,8 @@ data class Config(
         val port: Int = 5432,
         val username: String = "postgres",
         val password: String = "postgres",
-        val database: String = "postgres"
+        val database: String = "postgres",
+        val poolSize: Int = 5
     ) {
         val jdbcUrl by lazy {
             "jdbc:postgresql://$hostname:$port/$database?user=$username"

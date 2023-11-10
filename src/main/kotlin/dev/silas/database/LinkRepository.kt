@@ -1,10 +1,9 @@
 package dev.silas.database
 
-import dev.silas.DatabaseAccess
 import dev.silas.DatabaseConnectionPool
 import dev.silas.domain.Link
 import java.math.BigInteger
-import java.util.*
+import java.util.UUID
 
 class LinkRepository : DatabaseAccess() {
 
@@ -14,10 +13,21 @@ class LinkRepository : DatabaseAccess() {
     )
 
     context(DatabaseConnectionPool)
-    suspend fun insert(link: NewLink): List<UUID>? =
-        runQuery("insert into links (short_url,full_url) values ('${link.shortUrl}', '${link.fullUrl}') returning id") { row, _ ->
-            row["id", UUID::class.java]!!
+    suspend fun insert(link: NewLink): Link? {
+        val result =
+            runQuery("insert into links (short_url,full_url) values ('${link.shortUrl}', '${link.fullUrl}') returning *") { row, _ ->
+                Link(
+                    id = row["id", UUID::class.java]!!,
+                    shortUrl = row["short_url", String::class.java]!!,
+                    fullUrl = row["full_url", String::class.java]!!,
+                    hits = row["hits", BigInteger::class.java]!!
+                )
+            }
+        return when (result) {
+            is List<Link> -> result.firstOrNull()
+            else -> null
         }
+    }
 
     context(DatabaseConnectionPool)
     suspend fun getAll(): List<Link>? =
@@ -25,7 +35,7 @@ class LinkRepository : DatabaseAccess() {
             Link(
                 id = row["id", UUID::class.java]!!,
                 shortUrl = row["short_url", String::class.java]!!,
-                fullFull = row["full_url", String::class.java]!!,
+                fullUrl = row["full_url", String::class.java]!!,
                 hits = row["hits", BigInteger::class.java]!!
             )
         }
@@ -36,7 +46,7 @@ class LinkRepository : DatabaseAccess() {
             Link(
                 id = row["id", UUID::class.java]!!,
                 shortUrl = row["short_url", String::class.java]!!,
-                fullFull = row["full_url", String::class.java]!!,
+                fullUrl = row["full_url", String::class.java]!!,
                 hits = row["hits", BigInteger::class.java]!!
             )
         }
