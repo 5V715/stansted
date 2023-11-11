@@ -36,7 +36,10 @@ dependencies {
     implementation("io.r2dbc:r2dbc-pool:1.0.1.RELEASE")
     implementation("org.flywaydb:flyway-core:9.22.2")
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
+
+    // logging
+    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("io.zonky.test:embedded-postgres:2.0.4")

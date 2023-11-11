@@ -8,8 +8,11 @@ import dev.silas.infra.server.configureContentNegotiation
 import dev.silas.infra.server.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import mu.KotlinLogging
 
 object App {
+
+    private val logger = KotlinLogging.logger {}
 
     private val config = ConfigLoader.builder()
         .addPropertySources(
@@ -26,7 +29,9 @@ object App {
 
     @JvmStatic
     fun main(args: Array<String>): Unit = with(config) {
+        logger.info { "starting database migration" }
         flyway.migrate()
+        logger.info { "authentication enabled: ${auth.isEnabled()}" }
         embeddedServer(Netty, port = 8080) {
             configureAuthentication()
             configureContentNegotiation()
