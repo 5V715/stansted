@@ -22,6 +22,7 @@ interface LinkRepositoryAccess {
 
 data class Config(
     val postgres: DatabaseSettings = DatabaseSettings(),
+    val auth: AuthenticationSettings = AuthenticationSettings(),
     val shortLinkLength: Int = 6
 ) : DatabaseMigration, DatabaseConnectionPool, LinkRepositoryAccess {
 
@@ -73,5 +74,12 @@ data class Config(
 
     override val linkRepository: LinkRepository by lazy {
         LinkRepository()
+    }
+
+    data class AuthenticationSettings(
+        val username: String = "stansted",
+        val password: String? = null
+    ) {
+        fun isEnabled(): Boolean = password != null
     }
 }

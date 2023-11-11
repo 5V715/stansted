@@ -18,12 +18,16 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+    implementation("io.ktor:ktor-server-auth-jvm:2.3.5")
+    implementation("io.ktor:ktor-server-core-jvm:2.3.5")
 
     // ktor
-    implementation("io.ktor:ktor-server-core:2.3.5")
-    implementation("io.ktor:ktor-server-netty:2.3.5")
-    implementation("io.ktor:ktor-server-content-negotiation:2.3.5")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
+    val ktor_version = "2.3.5"
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
 
     // config
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
@@ -33,9 +37,8 @@ dependencies {
     implementation("io.r2dbc:r2dbc-pool:1.0.1.RELEASE")
     implementation("org.flywaydb:flyway-core:9.22.2")
     implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 
-    testImplementation("org.slf4j:slf4j-api:2.0.9")
-    testImplementation("org.slf4j:slf4j-simple:2.0.9")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("io.zonky.test:embedded-postgres:2.0.4")
 }

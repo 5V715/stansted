@@ -16,6 +16,7 @@ class AppTest {
         fun `setup embedded postgres`() {
             postgres = EmbeddedPostgres.builder().start()
             System.setProperty("config.override.postgres.port", postgres.port.toString())
+            // System.setProperty("config.override.auth.password", "test")
             println(postgres.getJdbcUrl("postgres", "postgres"))
         }
 
