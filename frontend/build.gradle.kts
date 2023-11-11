@@ -1,0 +1,44 @@
+plugins {
+    kotlin("multiplatform")
+    id("org.jetbrains.compose")
+    id("org.jlleitschuh.gradle.ktlint")
+}
+
+repositories {
+    google()
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+}
+
+kotlin {
+    js(IR) {
+        moduleName = "stansted"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "stansted.js"
+            }
+        }
+        binaries.executable()
+    }
+
+    sourceSets {
+        val jsMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.ui)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.components.resources)
+                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-js:2.3.3")
+            }
+        }
+    }
+}
+
+compose.experimental {
+    web.application {}
+}
