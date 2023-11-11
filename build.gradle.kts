@@ -9,7 +9,6 @@ plugins {
 }
 
 group = "dev.silas"
-version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -68,6 +67,10 @@ jib {
         }
     }
     to {
-        image = "ghcr.io/5v715/stansted:latest"
+        image = "ghcr.io/5v715/stansted"
+        tags = when (val versionString = version.toString()) {
+            "unspecified" -> setOf("latest")
+            else -> setOf("latest", versionString)
+        }
     }
 }

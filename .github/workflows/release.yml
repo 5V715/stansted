@@ -20,6 +20,7 @@ jobs:
           echo "version=$(echo $(basename ${{github.ref}}))" >> $GITHUB_OUTPUT
       - name: 'run gradle'
         shell: bash
-        run: ./gradlew jib -Djib.to.auth.username=${{ github.actor }} \
-          -Djib.to.auth.password=${{ secrets.REPO_TOKEN }} \
-          -Djib.to.tags=latest,${{ steps.get-version.outputs.version }}
+        run: |
+          ./gradlew jib -Pversion=${{ steps.get-version.outputs.version }} \
+          -Djib.to.auth.username=${{ github.actor }} \
+          -Djib.to.auth.password=${{ secrets.REPO_TOKEN }}
