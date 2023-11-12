@@ -11,6 +11,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.AuthenticationStrategy
 import io.ktor.server.auth.authenticate
+import io.ktor.server.http.content.staticResources
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -29,6 +30,9 @@ fun Application.routing() {
                 else -> AuthenticationStrategy.Optional
             }
         ) {
+            staticResources("/admin", "/js/productionExecutable") {
+                default("index.html")
+            }
             post("/") {
                 val request = call.receive<CreateLinkRequest>()
                 val shortUrl = when (request.shortUrl) {

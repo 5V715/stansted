@@ -20,6 +20,10 @@ application {
 
 dependencies {
 
+    implementation(project(":frontend")) {
+        targetConfiguration = "output"
+    }
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
     implementation("io.ktor:ktor-server-auth-jvm:2.3.5")
@@ -53,7 +57,9 @@ dependencies {
 tasks {
 
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeTags("manual")
+        }
     }
 
     withType<KotlinCompile> {

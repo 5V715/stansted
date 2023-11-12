@@ -42,3 +42,23 @@ kotlin {
 compose.experimental {
     web.application {}
 }
+
+configurations {
+    create("output")
+}
+
+val bundle = task<Zip>("bundleDist") {
+    dependsOn(tasks.findByPath(":build"))
+    archiveBaseName.set("frontend")
+    archiveExtension.set("jar")
+    destinationDirectory.set(layout.buildDirectory.dir("jar"))
+    from(layout.buildDirectory.dir("dist"))
+    exclude("**/index.html")
+}
+
+artifacts {
+    add("output", bundle.archiveFile) {
+        builtBy(bundle)
+        type = "jar"
+    }
+}

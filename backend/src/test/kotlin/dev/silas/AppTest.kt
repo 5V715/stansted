@@ -3,6 +3,7 @@ package dev.silas
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 
 class AppTest {
