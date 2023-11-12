@@ -1,6 +1,5 @@
 package dev.silas
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import dev.silas.model.Link
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
@@ -10,10 +9,16 @@ interface Dependencies {
     val localization: Localization
     val notification: Notification
     val httpClient: HttpClient
-    val links: SnapshotStateList<Link>
+    val linksApi: LinksApi
+}
+
+interface LinksApi {
+    suspend fun getAllLink(): List<Link>
+    suspend fun createLink(newLink: Link): Link
 }
 
 interface Localization {
+    val reloading: String
     val test: String
     val noInternet: String
     val loading: String
@@ -22,6 +27,7 @@ interface Localization {
 interface Notification {
     fun notifyExample()
     fun notifyNoInternet()
+    fun notifyReloading()
 }
 
 abstract class PopupNotification(private val localization: Localization) : Notification {
@@ -30,4 +36,6 @@ abstract class PopupNotification(private val localization: Localization) : Notif
     override fun notifyExample() = showPopUpMessage(localization.test)
 
     override fun notifyNoInternet() = showPopUpMessage(localization.noInternet)
+
+    override fun notifyReloading() = showPopUpMessage(localization.reloading)
 }

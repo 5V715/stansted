@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun StanstedTheme(content: @Composable () -> Unit) {
-    isSystemInDarkTheme() // todo check and change colors
+    isSystemInDarkTheme()
     MaterialTheme(
         colors = MaterialTheme.colors.copy(
             background = Colors.background,
