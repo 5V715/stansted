@@ -18,6 +18,10 @@ jobs:
       - id: get-version
         run: |
           echo "version=$(echo $(basename ${{github.ref}}))" >> $GITHUB_OUTPUT
+      - name: 'run gradle frontend'
+        shell: bash
+        run: |
+          ./gradlew :frontend:assemble -Pversion=${{ steps.get-version.outputs.version }}
       - name: 'run gradle'
         shell: bash
         run: |
