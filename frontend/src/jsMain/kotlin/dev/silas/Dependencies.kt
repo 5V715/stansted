@@ -1,6 +1,7 @@
 package dev.silas
 
 import dev.silas.model.Link
+import dev.silas.model.NewLink
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
 
@@ -14,7 +15,7 @@ interface Dependencies {
 
 interface LinksApi {
     suspend fun getAllLink(): List<Link>
-    suspend fun createLink(newLink: Link): Link
+    suspend fun createLink(newLink: NewLink): Link
 }
 
 interface Localization {

@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,14 +31,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.silas.model.Link
+import dev.silas.model.NewLink
 import kotlinx.coroutines.launch
+
+sealed class DetailElement {
+    data class LinkElement(val link: Link) : DetailElement()
+    object CreateElement : DetailElement()
+}
 
 @Composable
 fun MainView(
     dependencies: Dependencies
 ) {
     var links by remember { mutableStateOf(emptyList<Link>()) }
-    var selectedLink by remember { mutableStateOf<Link?>(null) }
+    var selectedElement by remember { mutableStateOf<DetailElement?>(null) }
 
     LaunchedEffect(true) {
         links = dependencies.linksApi.getAllLink()
@@ -47,21 +55,47 @@ fun MainView(
             Modifier.width(250.dp).fillMaxHeight()
                 .background(color = Color.LightGray)
         ) {
-            LinkList(links, selectedLink, {
+            LinkList(links, selectedElement, {
                 dependencies.notification.notifyReloading()
                 dependencies.ioScope.launch {
                     links = dependencies.linksApi.getAllLink()
                 }
             }) {
-                selectedLink = it
+                selectedElement = it
             }
         }
 
         Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())
 
         Box(Modifier.fillMaxHeight()) {
-            selectedLink?.let {
-                LinkDetailsView(it)
+            selectedElement?.let {
+                when (it) {
+                    is DetailElement.LinkElement -> LinkDetailsView(it.link)
+                    DetailElement.CreateElement -> CreateLinkDetailsView { fullUrl, shortUrl ->
+                        val newLink = when (shortUrl.isNotBlank()) {
+                            true -> NewLink(shortUrl, fullUrl)
+                            else -> NewLink(null, fullUrl)
+                        }
+                        dependencies.ioScope.launch {
+                            val response = dependencies
+                                .linksApi
+                                .createLink(newLink)
+                            val all = dependencies
+                                .linksApi
+                                .getAllLink()
+                            links = all
+                            when (
+                                val created = all.firstOrNull { found ->
+                                    found.id == response.id
+                                }
+                            ) {
+                                is Link -> {
+                                    selectedElement = DetailElement.LinkElement(created)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -70,16 +104,19 @@ fun MainView(
 @Composable
 fun LinkList(
     links: List<Link>,
-    selectedLink: Link?,
+    selectedElement: DetailElement?,
     reload: () -> Unit,
-    linkSelected: (link: Link) -> Unit
+    elementSelected: (element: DetailElement) -> Unit
 ) {
     LazyColumn {
         item {
             ReloadView(reload)
         }
         items(links) { person ->
-            LinkView(person, selectedLink, linkSelected)
+            LinkView(person, selectedElement, elementSelected)
+        }
+        item {
+            CreateView(elementSelected)
         }
     }
 }
@@ -87,18 +124,26 @@ fun LinkList(
 @Composable
 fun LinkView(
     link: Link,
-    selectedLink: Link?,
-    linkSelected: (link: Link) -> Unit
+    selectedElement: DetailElement?,
+    elementSelected: (DetailElement) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = { linkSelected(link) })
+        modifier = Modifier.fillMaxWidth().clickable(onClick = { elementSelected(DetailElement.LinkElement(link)) })
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
             Text(
                 text = link.shortUrl,
-                style = if (link.shortUrl == selectedLink?.shortUrl) MaterialTheme.typography.h6 else MaterialTheme.typography.body1
+                style = when (selectedElement) {
+                    is DetailElement.LinkElement -> when (link.shortUrl == selectedElement.link.shortUrl) {
+                        true -> MaterialTheme.typography.body1
+                        else -> MaterialTheme.typography.body1
+                    }
+
+                    DetailElement.CreateElement -> MaterialTheme.typography.body1
+                    else -> MaterialTheme.typography.body1
+                }
             )
 
             Text(text = link.fullUrl, style = TextStyle(color = Color.DarkGray, fontSize = 14.sp))
@@ -107,11 +152,28 @@ fun LinkView(
 }
 
 @Composable
+fun CreateView(elementSelected: (DetailElement) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = {
+            elementSelected(DetailElement.CreateElement)
+        })
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = "Create"
+            )
+        }
+    }
+}
+
+@Composable
 fun ReloadView(
-    onClick: () -> Unit
+    reload: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
+        modifier = Modifier.fillMaxWidth().clickable(onClick = reload)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -139,6 +201,47 @@ fun LinkDetailsView(link: Link) {
             Text(link.hits.toString(), style = MaterialTheme.typography.body1)
             Spacer(modifier = Modifier.size(24.dp))
             Text(link.id, style = MaterialTheme.typography.body1)
+        }
+    }
+}
+
+@Composable
+fun CreateLinkDetailsView(create: (String, String) -> Unit) {
+    var fullUrl by mutableStateOf("")
+    var shortUrl by mutableStateOf("")
+
+    LazyColumn(
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item {
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = fullUrl,
+                onValueChange = { input ->
+                    fullUrl = input
+                },
+                label = { Text("full url") },
+                isError = fullUrl.isNotEmpty()
+            )
+            Spacer(modifier = Modifier.size(12.dp))
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = shortUrl,
+                onValueChange = { input ->
+                    shortUrl = input
+                },
+                label = { Text("short url") }
+            )
+            Spacer(modifier = Modifier.size(12.dp))
+            Button(onClick = {
+                create(fullUrl, shortUrl)
+            }, enabled = fullUrl.isNotBlank()) {
+                Text(
+                    text = "create",
+                    style = MaterialTheme.typography.body1
+                )
+            }
         }
     }
 }
