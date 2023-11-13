@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,13 +24,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.silas.model.Link
 import dev.silas.model.NewLink
+import dev.silas.view.CustomTextField
 import kotlinx.coroutines.launch
 
 sealed class DetailElement {
@@ -205,38 +209,45 @@ fun LinkDetailsView(link: Link) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CreateLinkDetailsView(create: (String, String) -> Unit) {
-    var fullUrl by mutableStateOf("")
-    var shortUrl by mutableStateOf("")
+    val (first, second, third) = remember { FocusRequester.createRefs() }
+
+    var fullUrl by mutableStateOf(TextFieldValue(""))
+    var shortUrl by mutableStateOf(TextFieldValue(""))
 
     LazyColumn(
         modifier = Modifier.padding(16.dp).fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
+            CustomTextField(
+                modifier = Modifier.fillMaxWidth()
+                    .focusRequester(first),
                 value = fullUrl,
                 onValueChange = { input ->
                     fullUrl = input
                 },
                 label = { Text("full url") },
-                isError = fullUrl.isNotEmpty()
+                isError = { fullUrl.text.isNotEmpty() }
             )
             Spacer(modifier = Modifier.size(12.dp))
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
+            CustomTextField(
+                modifier = Modifier.fillMaxWidth()
+                    .focusRequester(second),
                 value = shortUrl,
                 onValueChange = { input ->
                     shortUrl = input
                 },
                 label = { Text("short url") }
             )
-            Spacer(modifier = Modifier.size(12.dp))
+            Spacer(
+                modifier = Modifier.size(12.dp)
+            )
             Button(onClick = {
-                create(fullUrl, shortUrl)
-            }, enabled = fullUrl.isNotBlank()) {
+                create(fullUrl.text, shortUrl.text)
+            }, enabled = fullUrl.text.isNotBlank()) {
                 Text(
                     text = "create",
                     style = MaterialTheme.typography.body1
