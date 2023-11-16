@@ -6,14 +6,16 @@ import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import org.flywaydb.core.Flyway
+import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import java.time.Duration
 
 interface DatabaseMigration {
     val flyway: Flyway
 }
 
-interface DatabaseConnectionPool {
-    val connectionPool: ConnectionPool
+interface JooqDslAccess {
+    val dslContext: DSLContext
 }
 
 interface LinkRepositoryAccess {
@@ -24,7 +26,7 @@ data class Config(
     val postgres: DatabaseSettings = DatabaseSettings(),
     val auth: AuthenticationSettings = AuthenticationSettings(),
     val shortLinkLength: Int = 6
-) : DatabaseMigration, DatabaseConnectionPool, LinkRepositoryAccess {
+) : DatabaseMigration, JooqDslAccess, LinkRepositoryAccess {
 
     override val flyway: Flyway by lazy {
         with(postgres) {
@@ -39,7 +41,7 @@ data class Config(
         }
     }
 
-    override val connectionPool by lazy {
+    private val connectionPool by lazy {
         with(postgres) {
             val connectionFactory = PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
@@ -57,6 +59,10 @@ data class Config(
                 .build()
             ConnectionPool(configuration)
         }
+    }
+
+    override val dslContext by lazy {
+        DSL.using(connectionPool)
     }
 
     data class DatabaseSettings(

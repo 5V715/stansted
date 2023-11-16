@@ -1,54 +1,66 @@
 package dev.silas.database
 
-import dev.silas.DatabaseConnectionPool
+import dev.silas.JooqDslAccess
 import dev.silas.domain.Link
-import io.r2dbc.spi.Row
-import java.math.BigInteger
-import java.time.OffsetDateTime
-import java.util.UUID
+import dev.silas.stansted.db.model.public_.Tables
+import dev.silas.stansted.db.model.public_.tables.records.LinksRecord
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
-class LinkRepository : DatabaseAccess() {
+class LinkRepository {
 
     data class NewLink(
         val shortUrl: String,
         val fullUrl: String
     )
 
-    context(DatabaseConnectionPool)
+    context(JooqDslAccess)
     suspend fun insert(link: NewLink): Link? {
-        val result =
-            runQuery("insert into links (short_url,full_url) values ('${link.shortUrl}', '${link.fullUrl}') returning *") { row, _ ->
-                row.toLink()
-            }
+        val result = with(Tables.LINKS) {
+            Flux.from(
+                dslContext.insertInto(this)
+                    .columns(SHORT_URL, FULL_URL)
+                    .values(link.shortUrl, link.fullUrl)
+                    .returning()
+            )
+        }.map(::toLink)
+            .collectList()
+            .awaitSingle()
         return when (result) {
             is List<Link> -> result.firstOrNull()
             else -> null
         }
     }
 
-    context(DatabaseConnectionPool)
-    suspend fun getAll(): List<Link>? =
-        runQuery("select * from links order by created_at desc") { row, _ ->
-            row.toLink()
-        }
-
-    context(DatabaseConnectionPool)
-    suspend fun findByShortUrl(shortUrl: String): Link? {
-        val result = runQuery("update links set hits = hits + 1 where short_url = '$shortUrl' returning *") { row, _ ->
-            row.toLink()
-        }
-        return when (result) {
-            is List<Link> -> result.firstOrNull()
-            else -> null
-        }
+    context(JooqDslAccess)
+    suspend fun getAll(): List<Link> = with(Tables.LINKS) {
+        Flux.from(dslContext.selectFrom(this))
+            .map(::toLink)
+            .collectList()
+            .awaitSingle()
     }
 
-    private fun Row.toLink() =
-        Link(
-            id = this["id", UUID::class.java]!!,
-            shortUrl = this["short_url", String::class.java]!!,
-            fullUrl = this["full_url", String::class.java]!!,
-            hits = this["hits", BigInteger::class.java]!!,
-            createdAt = this["created_at", OffsetDateTime::class.java]!!
-        )
+    context(JooqDslAccess)
+    suspend fun findAndHit(shortUrl: String): Link? =
+        with(Tables.LINKS) {
+            Mono.from(
+                dslContext
+                    .update(this)
+                    .set(HITS, HITS.plus(1))
+                    .where(SHORT_URL.eq(shortUrl))
+                    .returning()
+            )
+                .map(::toLink)
+                .awaitSingleOrNull()
+        }
+
+    private fun toLink(linksRecord: LinksRecord) = Link(
+        id = linksRecord.id,
+        shortUrl = linksRecord.shortUrl,
+        fullUrl = linksRecord.fullUrl,
+        hits = linksRecord.hits,
+        createdAt = linksRecord.createdAt
+    )
 }

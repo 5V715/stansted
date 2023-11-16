@@ -57,7 +57,7 @@ fun Application.routing() {
         }
         get("/{shortUrl}") {
             when (val param = call.parameters["shortUrl"]) {
-                is String -> when (val link = linkRepository.findByShortUrl(param)) {
+                is String -> when (val link = linkRepository.findAndHit(param)) {
                     is Link -> with(call.response) {
                         status(HttpStatusCode.TemporaryRedirect)
                         header(io.ktor.http.HttpHeaders.Location, link.fullUrl)

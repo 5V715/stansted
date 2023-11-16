@@ -51,7 +51,7 @@ configurations {
 }
 
 val bundle = task<Zip>("bundleDist") {
-    dependsOn(tasks.findByPath(":build"))
+    dependsOn(tasks.findByPath(":frontend:jsBrowserProductionWebpack"))
     archiveBaseName.set("frontend")
     archiveExtension.set("jar")
     destinationDirectory.set(layout.buildDirectory.dir("jar"))
