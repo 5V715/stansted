@@ -78,45 +78,49 @@ dependencies {
 
 tasks {
 
-    register("generateJooqClasses") {
+    val generateJooqClasses by registering {
+        finalizedBy(withType<KotlinCompile>())
         val outputDir = layout.buildDirectory.dir("jooq-generated")
-        outputs.dir(outputDir)
         delete(outputDir)
-        EmbeddedPostgres
-            .builder()
-            .setLocaleConfig("locale", "en_US.UTF-8")
-            .start().use { embedded ->
-                FlywayPreparer.fromConfiguration(
-                    mapOf(
-                        "flyway.locations" to "${Location.FILESYSTEM_PREFIX}${layout.projectDirectory.dir("src/main/resources/db/migration").asFile.absolutePath}"
+        outputDir.get().asFile.mkdirs()
+        outputs.dir(outputDir)
+        doLast {
+            EmbeddedPostgres
+                .builder()
+                .setLocaleConfig("locale", "en_US.UTF-8")
+                .start().use { embedded ->
+                    FlywayPreparer.fromConfiguration(
+                        mapOf(
+                            "flyway.locations" to "${Location.FILESYSTEM_PREFIX}${layout.projectDirectory.dir("src/main/resources/db/migration").asFile.absolutePath}"
+                        )
                     )
-                )
-                    .prepare(embedded.postgresDatabase)
-                GenerationTool
-                    .generate(
-                        Configuration()
-                            .withGenerator(
-                                Generator()
-                                    .withDatabase(
-                                        Database()
-                                            .withIncludeSystemSequences(true)
-                                            .withIncludes("public.*|pg_catalog.pg_advisory_xact_lock|pg_catalog.pg_try_advisory_lock|pg_catalog.pg_advisory_unlock")
-                                    )
-                                    .withName(JavaGenerator::class.qualifiedName)
-                                    .withTarget(
-                                        Target()
-                                            .withEncoding("UTF-8")
-                                            .withPackageName("dev.silas.stansted.db.model")
-                                            .withDirectory(outputDir.get().asFile.absolutePath)
-                                    )
-                            )
-                            .withJdbc(
-                                Jdbc()
-                                    .withUrl(embedded.getJdbcUrl("postgres", "postgres"))
-                                    .withDriver("org.postgresql.Driver")
-                            )
-                    )
-            }
+                        .prepare(embedded.postgresDatabase)
+                    GenerationTool
+                        .generate(
+                            Configuration()
+                                .withGenerator(
+                                    Generator()
+                                        .withDatabase(
+                                            Database()
+                                                .withIncludeSystemSequences(true)
+                                                .withIncludes("public.*|pg_catalog.pg_advisory_xact_lock|pg_catalog.pg_try_advisory_lock|pg_catalog.pg_advisory_unlock")
+                                        )
+                                        .withName(JavaGenerator::class.qualifiedName)
+                                        .withTarget(
+                                            Target()
+                                                .withEncoding("UTF-8")
+                                                .withPackageName("dev.silas.stansted.db.model")
+                                                .withDirectory(outputDir.get().asFile.absolutePath)
+                                        )
+                                )
+                                .withJdbc(
+                                    Jdbc()
+                                        .withUrl(embedded.getJdbcUrl("postgres", "postgres"))
+                                        .withDriver("org.postgresql.Driver")
+                                )
+                        )
+                }
+        }
     }
 
     test {
@@ -126,6 +130,7 @@ tasks {
     }
 
     withType<KotlinCompile> {
+        dependsOn(generateJooqClasses)
         with(compilerOptions) {
             jvmTarget.set(JvmTarget.JVM_17)
             freeCompilerArgs.addAll(listOf("-Xjsr305=strict", "-Xcontext-receivers"))
