@@ -81,9 +81,11 @@ tasks {
     val generateJooqClasses by registering {
         finalizedBy(withType<KotlinCompile>())
         val outputDir = layout.buildDirectory.dir("jooq-generated")
-        delete(outputDir)
-        outputDir.get().asFile.mkdirs()
         outputs.dir(outputDir)
+        doFirst {
+            delete(outputDir)
+            outputDir.get().asFile.mkdirs()
+        }
         doLast {
             EmbeddedPostgres
                 .builder()

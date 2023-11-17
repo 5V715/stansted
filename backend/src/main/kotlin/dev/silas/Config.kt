@@ -5,6 +5,7 @@ import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
+import kotlinx.serialization.json.Json
 import org.flywaydb.core.Flyway
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -22,14 +23,22 @@ interface LinkRepositoryAccess {
     val linkRepository: LinkRepository
 }
 
+interface JsonSerializationAccess {
+    val json: Json
+}
+
 data class Config(
     val postgres: DatabaseSettings = DatabaseSettings(),
     val auth: AuthenticationSettings = AuthenticationSettings(),
     val shortLinkLength: Int = 6
-) : DatabaseMigration, JooqDslAccess, LinkRepositoryAccess {
+) : DatabaseMigration,
+    JooqDslAccess,
+    LinkRepositoryAccess,
+    JsonSerializationAccess {
 
     override val flyway: Flyway by lazy {
         with(postgres) {
+            println(jdbcUrl)
             Flyway
                 .configure()
                 .dataSource(
@@ -63,6 +72,13 @@ data class Config(
 
     override val dslContext by lazy {
         DSL.using(connectionPool)
+    }
+
+    override val json: Json by lazy {
+        Json {
+            prettyPrint = true
+            isLenient = true
+        }
     }
 
     data class DatabaseSettings(

@@ -6,7 +6,9 @@ import dev.silas.api.toResponse
 import dev.silas.database.LinkRepository
 import dev.silas.domain.Link
 import dev.silas.util.RandomAlphaNumeric
+import io.ktor.http.HttpHeaders.Location
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion.TemporaryRedirect
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.AuthenticationStrategy
@@ -56,11 +58,15 @@ fun Application.routing() {
             }
         }
         get("/{shortUrl}") {
+            val requestHeaders: Map<String, List<String>> =
+                call.request.headers.entries().fold(mapOf()) { acc, (key, value) ->
+                    acc + (key to value)
+                }
             when (val param = call.parameters["shortUrl"]) {
-                is String -> when (val link = linkRepository.findAndHit(param)) {
+                is String -> when (val link = linkRepository.findAndHit(param, requestHeaders)) {
                     is Link -> with(call.response) {
-                        status(HttpStatusCode.TemporaryRedirect)
-                        header(io.ktor.http.HttpHeaders.Location, link.fullUrl)
+                        status(TemporaryRedirect)
+                        header(Location, link.fullUrl)
                     }
 
                     else -> call.respond(HttpStatusCode.NotFound)

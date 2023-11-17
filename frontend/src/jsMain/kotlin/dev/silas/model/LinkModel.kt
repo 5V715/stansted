@@ -8,7 +8,13 @@ data class Link(
     val shortUrl: String,
     val fullUrl: String,
     val createdAt: String,
-    val hits: Int
+    val hits: List<Hit>
+)
+
+@Serializable
+data class Hit(
+    val createdAt: String,
+    val data: Map<String, List<String>>
 )
 
 @Serializable
