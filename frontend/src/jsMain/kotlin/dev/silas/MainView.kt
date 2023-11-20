@@ -26,8 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -36,6 +34,8 @@ import androidx.compose.ui.unit.sp
 import dev.silas.model.Link
 import dev.silas.model.NewLink
 import dev.silas.view.CustomTextField
+import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.websocket.Frame
 import kotlinx.coroutines.launch
 
 sealed class DetailElement {
@@ -52,6 +52,17 @@ fun MainView(
 
     LaunchedEffect(true) {
         links = dependencies.linksApi.getAllLink()
+        dependencies.httpClient.webSocket("/update") {
+            while (true) {
+                when (val incoming = incoming.receive()) {
+                    is Frame.Text -> {
+                        links = dependencies.linksApi.getAllLink()
+                    }
+
+                    else -> println("got $incoming")
+                }
+            }
+        }
     }
 
     Row(Modifier.fillMaxSize()) {
@@ -212,8 +223,6 @@ fun LinkDetailsView(link: Link) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CreateLinkDetailsView(create: (String, String) -> Unit) {
-    val (first, second, third) = remember { FocusRequester.createRefs() }
-
     var fullUrl by mutableStateOf(TextFieldValue(""))
     var shortUrl by mutableStateOf(TextFieldValue(""))
 
@@ -223,8 +232,7 @@ fun CreateLinkDetailsView(create: (String, String) -> Unit) {
     ) {
         item {
             CustomTextField(
-                modifier = Modifier.fillMaxWidth()
-                    .focusRequester(first),
+                modifier = Modifier.fillMaxWidth(),
                 value = fullUrl,
                 onValueChange = { input ->
                     fullUrl = input
@@ -234,8 +242,7 @@ fun CreateLinkDetailsView(create: (String, String) -> Unit) {
             )
             Spacer(modifier = Modifier.size(12.dp))
             CustomTextField(
-                modifier = Modifier.fillMaxWidth()
-                    .focusRequester(second),
+                modifier = Modifier.fillMaxWidth(),
                 value = shortUrl,
                 onValueChange = { input ->
                     shortUrl = input

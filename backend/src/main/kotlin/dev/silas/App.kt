@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
 import dev.silas.infra.server.configureAuthentication
 import dev.silas.infra.server.configureContentNegotiation
+import dev.silas.infra.server.configureWebSockets
 import dev.silas.infra.server.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -35,6 +36,7 @@ object App {
         embeddedServer(Netty, port = 8080) {
             configureAuthentication()
             configureContentNegotiation()
+            configureWebSockets()
             routing()
         }.start(wait = true)
     }

@@ -47,12 +47,15 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.3")
     implementation("io.ktor:ktor-server-auth-jvm:2.3.5")
     implementation("io.ktor:ktor-server-core-jvm:2.3.5")
+    implementation("io.ktor:ktor-server-websockets-jvm:2.3.5")
 
     // ktor
     val ktor_version = "2.3.5"
     implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")

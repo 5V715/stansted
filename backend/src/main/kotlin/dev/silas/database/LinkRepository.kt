@@ -10,7 +10,6 @@ import dev.silas.stansted.db.model.public_.tables.records.LinksRecord
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.serialization.encodeToString
-import mu.KotlinLogging
 import org.jooq.Condition
 import org.jooq.JSONB
 import org.jooq.Records

@@ -19,6 +19,7 @@ import dev.silas.view.ToastState
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.js.JsClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,7 @@ internal fun App() {
 
 fun getDependencies(ioScope: CoroutineScope, toastState: MutableState<ToastState>) = object : Dependencies {
     override val httpClient: HttpClient = HttpClient(JsClient()) {
+        install(WebSockets)
         install(ContentNegotiation) {
             json(
                 Json {

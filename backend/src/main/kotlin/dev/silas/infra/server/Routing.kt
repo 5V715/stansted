@@ -20,11 +20,19 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.Frame
 import io.r2dbc.spi.R2dbcDataIntegrityViolationException
+import kotlinx.coroutines.flow.collectLatest
 
 context(Config)
 fun Application.routing() {
     routing {
+        webSocket("/update") {
+            eventNotification.collectLatest {
+                send(Frame.Text(it))
+            }
+        }
         authenticate(
             AUTHENTICATION_CONFIG_NAME,
             strategy = when (auth.isEnabled()) {

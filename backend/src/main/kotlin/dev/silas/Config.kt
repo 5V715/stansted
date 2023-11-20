@@ -5,6 +5,10 @@ import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
+import io.r2dbc.postgresql.api.Notification
+import io.r2dbc.postgresql.api.PostgresqlResult
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.serialization.json.Json
 import org.flywaydb.core.Flyway
 import org.jooq.DSLContext
@@ -50,9 +54,9 @@ data class Config(
         }
     }
 
-    private val connectionPool by lazy {
+    private val connectionFactory by lazy {
         with(postgres) {
-            val connectionFactory = PostgresqlConnectionFactory(
+            PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
                     .host(hostname)
                     .port(port)
@@ -61,14 +65,31 @@ data class Config(
                     .database(database) // optional
                     .build()
             )
+        }
+    }
 
-            val configuration = ConnectionPoolConfiguration.builder(connectionFactory)
+    private val connectionPool by lazy {
+        with(postgres) {
+            val configuration = ConnectionPoolConfiguration
+                .builder(connectionFactory)
                 .maxIdleTime(Duration.ofMillis(1000))
                 .maxSize(poolSize)
                 .build()
             ConnectionPool(configuration)
         }
     }
+
+    val eventNotification =
+        connectionFactory
+            .create()
+            .flatMapMany { connection ->
+                connection.createStatement("LISTEN link_event_notification")
+                    .execute()
+                    .flatMap(PostgresqlResult::getRowsUpdated)
+                    .thenMany(connection.notifications.mapNotNull(Notification::getParameter))
+                    .cast(String::class.java)
+            }.asFlow()
+            .buffer(1)
 
     override val dslContext by lazy {
         DSL.using(connectionPool)
