@@ -1,13 +1,10 @@
 CREATE OR REPLACE FUNCTION notify_links_event() RETURNS TRIGGER AS
 $$
+DECLARE
+    payload JSON;
 BEGIN
-    IF (TG_OP = 'DELETE') then
-        perform pg_notify('link_event_notification', (row_to_json(old)::jsonb || '{"type":"DELETE"}'::jsonb)::text);
-    ELSIF (TG_OP = 'UPDATE') THEN
-        perform pg_notify('link_event_notification', (row_to_json(new)::jsonb || '{"type":"UPDATE"}'::jsonb)::text);
-    ELSIF (TG_OP = 'INSERT') THEN
-        perform pg_notify('link_event_notification', (row_to_json(new)::jsonb || '{"type":"INSERT"}'::jsonb)::text);
-    END IF;
+    payload = json_build_object('old',row_to_json(old),'new',row_to_json(new),'type',tg_op);
+    perform pg_notify('link_event_notification', payload::text);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;;

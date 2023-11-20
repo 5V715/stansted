@@ -33,9 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.silas.model.Link
 import dev.silas.model.NewLink
+import dev.silas.model.Update
 import dev.silas.view.CustomTextField
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 sealed class DetailElement {
@@ -54,11 +57,13 @@ fun MainView(
         links = dependencies.linksApi.getAllLink()
         dependencies.httpClient.webSocket("/update") {
             while (true) {
+                delay(500L)
                 when (val incoming = incoming.receive()) {
                     is Frame.Text -> {
+                        val update = dependencies.json.decodeFromString<Update>(incoming.readText())
+                        println(update)
                         links = dependencies.linksApi.getAllLink()
                     }
-
                     else -> println("got $incoming")
                 }
             }

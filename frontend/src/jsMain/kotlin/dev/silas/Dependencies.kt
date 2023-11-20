@@ -4,6 +4,7 @@ import dev.silas.model.Link
 import dev.silas.model.NewLink
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.serialization.json.Json
 
 interface Dependencies {
     val ioScope: CoroutineScope
@@ -11,6 +12,7 @@ interface Dependencies {
     val notification: Notification
     val httpClient: HttpClient
     val linksApi: LinksApi
+    val json: Json
 }
 
 interface LinksApi {

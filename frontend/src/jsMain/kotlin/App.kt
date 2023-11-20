@@ -46,13 +46,14 @@ fun getDependencies(ioScope: CoroutineScope, toastState: MutableState<ToastState
         install(WebSockets)
         install(ContentNegotiation) {
             json(
-                Json {
-                    ignoreUnknownKeys = true
-                }
+                json
             )
         }
     }
     override val linksApi: LinksApi = LinksApiImpl(httpClient)
+    override val json: Json = Json {
+        ignoreUnknownKeys = true
+    }
     override val ioScope: CoroutineScope = ioScope
     override val localization: Localization = object : Localization {
         override val reloading: String = "reloading..."
