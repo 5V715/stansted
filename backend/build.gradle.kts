@@ -82,7 +82,6 @@ dependencies {
 tasks {
 
     val generateJooqClasses by registering {
-        finalizedBy(withType<KotlinCompile>())
         val outputDir = layout.buildDirectory.dir("jooq-generated")
         outputs.dir(outputDir)
         doFirst {
