@@ -15,6 +15,7 @@ import org.jooq.meta.jaxb.Target
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("com.google.cloud.tools.jib") version "3.4.4"
     id("io.ktor.plugin") version "2.3.5"
     id("org.jlleitschuh.gradle.ktlint")
 }
