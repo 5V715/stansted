@@ -21,11 +21,11 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath(platform("io.zonky.test.postgres:embedded-postgres-binaries-bom:15.2.0"))
+        classpath(platform("io.zonky.test.postgres:embedded-postgres-binaries-bom:16.4.0"))
         classpath("org.jooq:jooq-codegen:3.18.6")
         classpath("org.flywaydb:flyway-core:9.22.2")
-        classpath("org.postgresql:postgresql:42.2.27")
-        classpath("io.zonky.test:embedded-postgres:2.0.4")
+        classpath("org.postgresql:postgresql:42.7.3")
+        classpath("io.zonky.test:embedded-postgres:2.0.7")
     }
 }
 
@@ -66,14 +66,14 @@ dependencies {
     implementation("io.r2dbc:r2dbc-pool:1.0.1.RELEASE")
     implementation("org.jooq:jooq:3.18.7")
     implementation("org.flywaydb:flyway-core:9.22.2")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.postgresql:postgresql:42.7.3")
 
     // logging
     implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("io.zonky.test:embedded-postgres:2.0.4")
+    testImplementation("io.zonky.test:embedded-postgres:2.0.7")
 }
 
 tasks {
