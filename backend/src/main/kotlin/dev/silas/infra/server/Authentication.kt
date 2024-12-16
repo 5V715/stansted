@@ -1,16 +1,14 @@
 package dev.silas.infra.server
 
 import dev.silas.Config
-import io.ktor.server.application.Application
-import io.ktor.server.auth.UserIdPrincipal
-import io.ktor.server.auth.authentication
-import io.ktor.server.auth.basic
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
 
 const val AUTHENTICATION_CONFIG_NAME = "basic-auth"
 
 context(Config)
 fun Application.configureAuthentication() {
-    authentication {
+    install(Authentication) {
         basic(name = AUTHENTICATION_CONFIG_NAME) {
             realm = "Admin"
             validate { credentials ->
