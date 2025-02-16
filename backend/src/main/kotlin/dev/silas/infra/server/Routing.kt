@@ -13,7 +13,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.AuthenticationStrategy
 import io.ktor.server.auth.authenticate
-import io.ktor.server.http.content.staticResources
+import io.ktor.server.http.content.*
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -24,6 +24,7 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.r2dbc.spi.R2dbcDataIntegrityViolationException
 import kotlinx.coroutines.flow.collectLatest
+import java.nio.file.Path
 
 context(Config)
 fun Application.routing() {
@@ -40,7 +41,11 @@ fun Application.routing() {
                 else -> AuthenticationStrategy.Optional
             }
         ) {
-            staticResources("/admin", "/js/productionExecutable") {
+            staticZip(
+                "/admin",
+                basePath = "",
+                Path.of("/Users/silas.schwarz/Documents/learn/stansted/frontend/build/jar/frontend.jar")
+            ) {
                 default("index.html")
             }
             post("/") {

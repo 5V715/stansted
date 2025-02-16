@@ -13,10 +13,10 @@ import org.jooq.meta.jaxb.Jdbc
 import org.jooq.meta.jaxb.Target
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "2.3.5"
-    id("org.jlleitschuh.gradle.ktlint")
+    alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktor)
+    alias(libs.plugins.ktlint)
 }
 
 buildscript {
@@ -48,34 +48,21 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.3")
-    implementation("io.ktor:ktor-server-auth-jvm:2.3.5")
-    implementation("io.ktor:ktor-server-core-jvm:2.3.5")
-    implementation("io.ktor:ktor-server-websockets-jvm:2.3.5")
 
     // ktor
-    val ktor_version = "2.3.5"
-    implementation("io.ktor:ktor-server-core:$ktor_version")
-    implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation(libs.bundles.ktor.server)
 
     // config
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
 
     // database
-    implementation("org.postgresql:r2dbc-postgresql:1.0.2.RELEASE")
-    implementation("io.r2dbc:r2dbc-pool:1.0.1.RELEASE")
-    implementation("org.jooq:jooq:3.18.7")
-    implementation("org.flywaydb:flyway-core:9.22.2")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation(libs.bundles.database)
 
     // logging
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.4.12")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.10")
     testImplementation("io.zonky.test:embedded-postgres:2.0.4")
 }
 
@@ -136,7 +123,7 @@ tasks {
     withType<KotlinCompile> {
         dependsOn(generateJooqClasses)
         with(compilerOptions) {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_21)
             freeCompilerArgs.addAll(listOf("-Xjsr305=strict", "-Xcontext-receivers"))
         }
     }

@@ -87,7 +87,7 @@ private suspend fun ShortcutEventHandler(
         }
 
         ShortcutEvent.PASTE -> {
-            val clipboardText = window.navigator.clipboard.readText().await()
+            val clipboardText = window.navigator.clipboard.readText().await<String>()
             onValueChange(value.replaceSelected(clipboardText))
         }
 
