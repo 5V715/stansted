@@ -61,7 +61,7 @@ fun MainView(
                 when (val incoming = incoming.receive()) {
                     is Frame.Text -> {
                         val update = dependencies.json.decodeFromString<Update>(incoming.readText())
-                        println(update)
+                        console.log("update got this: $update")
                         links = dependencies.linksApi.getAllLink()
                     }
                     else -> println("got $incoming")

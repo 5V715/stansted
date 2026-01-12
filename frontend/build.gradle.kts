@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     id("org.jetbrains.compose")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("org.jlleitschuh.gradle.ktlint")
 }
 
@@ -15,7 +16,7 @@ repositories {
 
 kotlin {
     js(IR) {
-        moduleName = "stansted"
+        outputModuleName = "stansted"
         browser {
             commonWebpackConfig {
                 outputFileName = "stansted.js"
@@ -48,10 +49,15 @@ compose.experimental {
 }
 
 configurations {
-    create("output")
+    consumable("frontendJar"){
+        attributes {
+            // The unique attribute allows targeted selection
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named("frontend-jar"))
+        }
+    }
 }
 
-val bundle = task<Zip>("bundleDist") {
+val bundle = task<Jar>("bundleDist") {
     dependsOn(tasks.findByPath(":frontend:jsBrowserProductionWebpack"))
     archiveBaseName.set("frontend")
     archiveExtension.set("jar")
@@ -61,8 +67,5 @@ val bundle = task<Zip>("bundleDist") {
 }
 
 artifacts {
-    add("output", bundle.archiveFile) {
-        builtBy(bundle)
-        type = "jar"
-    }
+    add("frontendJar", bundle)
 }

@@ -38,12 +38,20 @@ repositories {
 application {
     mainClass.set("dev.silas.App")
 }
+val frontendDependencies by configurations.dependencyScope("frontendDependencies")
 
+val frontendJar by configurations.resolvable("frontendJar") {
+    // Wire the dependency declarations
+    extendsFrom(frontendDependencies)
+
+    // These attributes must be compatible with the producer
+    attributes {
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named("frontend-jar"))
+    }
+}
 dependencies {
 
-    implementation(project(":frontend")) {
-        targetConfiguration = "output"
-    }
+    frontendDependencies(project(":frontend"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
@@ -69,10 +77,10 @@ dependencies {
     implementation("io.r2dbc:r2dbc-pool:1.0.1.RELEASE")
     implementation("org.jooq:jooq:3.18.7")
     implementation("org.flywaydb:flyway-core:9.22.2")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.postgresql:postgresql:42.7.7")
 
     // logging
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.5.13")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
