@@ -35,7 +35,7 @@ import dev.silas.model.Link
 import dev.silas.model.NewLink
 import dev.silas.model.Update
 import dev.silas.view.CustomTextField
-import io.ktor.client.plugins.websocket.webSocket
+import dev.silas.ws.tryWss
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.delay
@@ -55,7 +55,7 @@ fun MainView(
 
     LaunchedEffect(true) {
         links = dependencies.linksApi.getAllLink()
-        dependencies.httpClient.webSocket("/update") {
+        dependencies.httpClient.tryWss("/update") {
             while (true) {
                 delay(500L)
                 when (val incoming = incoming.receive()) {
