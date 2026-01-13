@@ -2,7 +2,6 @@ import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import io.zonky.test.db.postgres.embedded.FlywayPreparer
 import org.flywaydb.core.api.Location
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.codegen.GenerationTool
 import org.jooq.codegen.JavaGenerator
@@ -65,14 +64,15 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
 
     // database
-    implementation("org.postgresql:r2dbc-postgresql:1.0.2.RELEASE")
-    implementation("io.r2dbc:r2dbc-pool:1.0.1.RELEASE")
-    implementation("org.jooq:jooq:3.18.7")
-    implementation("org.flywaydb:flyway-core:9.22.2")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("org.postgresql:r2dbc-postgresql:1.1.1.RELEASE")
+    implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
+    implementation("org.jooq:jooq:3.20.9")
+    implementation("org.flywaydb:flyway-core:11.20.1")
+    implementation("org.flywaydb:flyway-database-postgresql:11.20.1")
+    implementation("org.postgresql:postgresql:42.7.7")
 
     // logging
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.5.13")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -135,10 +135,13 @@ tasks {
 
     withType<KotlinCompile> {
         dependsOn(generateJooqClasses)
-        with(compilerOptions) {
-            jvmTarget.set(JvmTarget.JVM_17)
-            freeCompilerArgs.addAll(listOf("-Xjsr305=strict", "-Xcontext-receivers"))
-        }
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.addAll(listOf("-Xjsr305=strict", "-Xcontext-receivers"))
     }
 }
 
