@@ -161,6 +161,17 @@ jib {
             "unspecified" -> setOf("latest")
             else -> setOf("latest", versionString)
         }
+        extraDirectories {
+            paths {
+                path {
+                    setFrom("src/main/data")
+                    into = "/data"
+                }
+            }
+        }
+    }
+    container {
+        jvmFlags = listOf("-javaagent:/data/otel/opentelemetry-javaagent.jar")
     }
 }
 
