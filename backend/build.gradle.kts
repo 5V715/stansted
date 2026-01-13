@@ -15,7 +15,7 @@ import org.jooq.meta.jaxb.Target
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "2.3.5"
+    id("io.ktor.plugin") version "3.3.3"
     id("org.jlleitschuh.gradle.ktlint")
 }
 
@@ -48,12 +48,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.7.3")
-    implementation("io.ktor:ktor-server-auth-jvm:2.3.5")
-    implementation("io.ktor:ktor-server-core-jvm:2.3.5")
-    implementation("io.ktor:ktor-server-websockets-jvm:2.3.5")
 
     // ktor
-    val ktor_version = "2.3.5"
+    val ktor_version = "3.3.3"
+    implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
