@@ -1,6 +1,8 @@
 package dev.silas
 
 import dev.silas.infra.database.LinkRepository
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
@@ -31,6 +33,10 @@ interface JsonSerializationAccess {
     val json: Json
 }
 
+interface PrometheusMeterRegistryAccess {
+    val appMicrometerRegistry: PrometheusMeterRegistry
+}
+
 data class Config(
     val postgres: DatabaseSettings = DatabaseSettings(),
     val auth: AuthenticationSettings = AuthenticationSettings(),
@@ -38,7 +44,8 @@ data class Config(
 ) : DatabaseMigration,
     JooqDslAccess,
     LinkRepositoryAccess,
-    JsonSerializationAccess {
+    JsonSerializationAccess,
+    PrometheusMeterRegistryAccess {
 
     override val flyway: Flyway by lazy {
         with(postgres) {
@@ -100,6 +107,10 @@ data class Config(
             prettyPrint = true
             isLenient = true
         }
+    }
+
+    override val appMicrometerRegistry: PrometheusMeterRegistry by lazy {
+        PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     }
 
     data class DatabaseSettings(

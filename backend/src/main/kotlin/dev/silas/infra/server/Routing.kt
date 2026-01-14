@@ -59,7 +59,10 @@ fun Application.routing() {
                 }
             }
             get("/") {
-                call.respond(linkRepository.getAll()!!.map { it.toResponse() })
+                call.respond(linkRepository.getAll().map { it.toResponse() })
+            }
+            get("/metrics") {
+                call.respond(appMicrometerRegistry.scrape())
             }
         }
         get("/{shortUrl}") {
