@@ -75,6 +75,11 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.13")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
+    // monitoring
+    val prometheus_version = "1.16.2"
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktor_version")
+    implementation("io.micrometer:micrometer-registry-prometheus:$prometheus_version")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("io.zonky.test:embedded-postgres:2.0.4")
 }

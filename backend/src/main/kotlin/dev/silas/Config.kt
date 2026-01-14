@@ -1,6 +1,6 @@
 package dev.silas
 
-import dev.silas.database.LinkRepository
+import dev.silas.infra.database.LinkRepository
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration

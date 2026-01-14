@@ -3,8 +3,8 @@ package dev.silas.infra.server
 import dev.silas.Config
 import dev.silas.api.CreateLinkRequest
 import dev.silas.api.toResponse
-import dev.silas.database.LinkRepository
 import dev.silas.domain.Link
+import dev.silas.infra.database.LinkRepository
 import dev.silas.util.RandomAlphaNumeric
 import io.ktor.http.HttpHeaders.Location
 import io.ktor.http.HttpStatusCode

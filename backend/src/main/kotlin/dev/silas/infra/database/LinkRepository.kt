@@ -1,4 +1,4 @@
-package dev.silas.database
+package dev.silas.infra.database
 
 import dev.silas.JooqDslAccess
 import dev.silas.JsonSerializationAccess
@@ -9,7 +9,6 @@ import dev.silas.stansted.db.model.public_.Tables.LINKS
 import dev.silas.stansted.db.model.public_.tables.records.LinksRecord
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.serialization.encodeToString
 import org.jooq.Condition
 import org.jooq.JSONB
 import org.jooq.Records
