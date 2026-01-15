@@ -138,14 +138,13 @@ data class Config(
         LinkRepository()
     }
 
-    override val openTelemetry: OpenTelemetry by lazy {
+    override val openTelemetry: OpenTelemetry =
         AutoConfiguredOpenTelemetrySdk.builder().addResourceCustomizer { oldResource, _ ->
             oldResource.toBuilder()
                 .putAll(oldResource.attributes)
                 .put(ServiceAttributes.SERVICE_NAME, "stansted")
                 .build()
         }.build().openTelemetrySdk
-    }
 
     data class AuthenticationSettings(
         val username: String = "stansted",

@@ -11,8 +11,4 @@ fun Application.configureMonitoring() {
     install(MicrometerMetrics) {
         registry = appMicrometerRegistry
     }
-
-    install(KtorServerTelemetry) {
-        setOpenTelemetry(openTelemetry)
-    }
 }
