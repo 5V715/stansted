@@ -4,7 +4,7 @@ import dev.silas.domain.Link
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreateLinkResponse(
+data class LinkResponse(
     val id: String,
     val shortUrl: String,
     val fullUrl: String,
@@ -18,7 +18,7 @@ data class HitResponse(
     val data: Map<String, List<String>>
 )
 
-fun Link.toResponse() = CreateLinkResponse(
+fun Link.toResponse() = LinkResponse(
     id = id.toString(),
     shortUrl = shortUrl,
     fullUrl = fullUrl,

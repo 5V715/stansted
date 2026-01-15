@@ -1,9 +1,11 @@
 package dev.silas.ws
 
-import io.ktor.client.*
-import io.ktor.client.plugins.websocket.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
+import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.client.plugins.websocket.wss
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.http.takeFrom
 
 
 suspend fun HttpClient.tryWss(

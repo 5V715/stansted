@@ -12,26 +12,17 @@ import io.ktor.http.HttpStatusCode.Companion.TemporaryRedirect
 import io.ktor.server.application.Application
 import io.ktor.server.auth.AuthenticationStrategy
 import io.ktor.server.auth.authenticate
-import io.ktor.server.http.content.staticResources
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
-import io.ktor.server.websocket.webSocket
-import io.ktor.websocket.Frame
 import io.r2dbc.spi.R2dbcDataIntegrityViolationException
-import kotlinx.coroutines.flow.collectLatest
 
 context(Config)
-fun Application.routing() {
+fun Application.configureApiRouting() {
     routing {
-        webSocket("/update") {
-            eventNotification.collectLatest {
-                send(Frame.Text(it))
-            }
-        }
         authenticate(
             AUTHENTICATION_CONFIG_NAME,
             strategy = when (auth.isEnabled()) {
@@ -39,7 +30,6 @@ fun Application.routing() {
                 else -> AuthenticationStrategy.Optional
             }
         ) {
-            staticResources("/admin", "static")
             post("/") {
                 val request = call.receive<CreateLinkRequest>()
                 val shortUrl = when (request.shortUrl) {
@@ -60,9 +50,6 @@ fun Application.routing() {
             }
             get("/") {
                 call.respond(linkRepository.getAll().map { it.toResponse() })
-            }
-            get("/metrics") {
-                call.respond(appMicrometerRegistry.scrape())
             }
         }
         get("/{shortUrl}") {

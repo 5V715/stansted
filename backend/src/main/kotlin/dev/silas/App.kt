@@ -3,11 +3,12 @@ package dev.silas
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 import com.sksamuel.hoplite.sources.SystemPropertiesPropertySource
+import dev.silas.infra.server.configureAdminRouting
+import dev.silas.infra.server.configureApiRouting
 import dev.silas.infra.server.configureAuthentication
 import dev.silas.infra.server.configureContentNegotiation
 import dev.silas.infra.server.configureMonitoring
 import dev.silas.infra.server.configureWebSockets
-import dev.silas.infra.server.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import mu.KotlinLogging
@@ -35,11 +36,12 @@ object App {
         flyway.migrate()
         logger.info { "authentication enabled: ${auth.isEnabled()}" }
         embeddedServer(Netty, port = 8080) {
-            configureMonitoring()
             configureAuthentication()
             configureContentNegotiation()
             configureWebSockets()
-            routing()
+            configureMonitoring()
+            configureApiRouting()
+            configureAdminRouting()
         }.start(wait = true)
     }
 }

@@ -50,15 +50,16 @@ dependencies {
 
     // ktor
     val ktor_version = "3.3.3"
-    implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-core:$ktor_version")
-    implementation("io.ktor:ktor-server-websockets-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation(platform("io.ktor:ktor-bom:3.3.3"))
+    implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-server-core-jvm")
+    implementation("io.ktor:ktor-server-websockets-jvm")
+    implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-server-websockets-jvm")
+    implementation("io.ktor:ktor-server-netty")
+    implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-server-auth")
 
     // config
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
@@ -76,14 +77,14 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     // monitoring
-    val prometheus_version = "1.16.2"
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktor_version")
-    implementation("io.micrometer:micrometer-registry-prometheus:$prometheus_version")
-    implementation("io.opentelemetry.instrumentation:opentelemetry-ktor-3.0:2.18.1-alpha")
-    implementation("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure:1.58.0")
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.58.0")
+    implementation("io.ktor:ktor-server-metrics-micrometer")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.16.2")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("com.willowtreeapps.assertk:assertk:0.28.1")
+    testImplementation("io.ktor:ktor-client-content-negotiation")
+    testImplementation("io.mockk:mockk:1.14.7")
     testImplementation("io.zonky.test:embedded-postgres:2.0.4")
 }
 

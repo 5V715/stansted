@@ -64,6 +64,7 @@ fun MainView(
                         println(update)
                         links = dependencies.linksApi.getAllLink()
                     }
+
                     else -> println("got $incoming")
                 }
             }
