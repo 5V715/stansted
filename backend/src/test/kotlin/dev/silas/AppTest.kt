@@ -3,6 +3,7 @@ package dev.silas
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import kotlin.test.Test
 
 class AppTest {
@@ -28,6 +29,11 @@ class AppTest {
     }
 
     @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI",
+        matches = "true",
+        disabledReason = "Runs only when executed manually, not in CI"
+    )
     fun `can start`() {
         App.main(args = arrayOf())
     }

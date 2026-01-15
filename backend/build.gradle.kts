@@ -79,6 +79,9 @@ dependencies {
     val prometheus_version = "1.16.2"
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktor_version")
     implementation("io.micrometer:micrometer-registry-prometheus:$prometheus_version")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-ktor-3.0:2.18.1-alpha")
+    implementation("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure:1.58.0")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.58.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("io.zonky.test:embedded-postgres:2.0.4")
