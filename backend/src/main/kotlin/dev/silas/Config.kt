@@ -5,7 +5,6 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk
-import io.opentelemetry.semconv.ServiceAttributes
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
@@ -138,13 +137,9 @@ data class Config(
         LinkRepository()
     }
 
-    override val openTelemetry: OpenTelemetry =
-        AutoConfiguredOpenTelemetrySdk.builder().addResourceCustomizer { oldResource, _ ->
-            oldResource.toBuilder()
-                .putAll(oldResource.attributes)
-                .put(ServiceAttributes.SERVICE_NAME, "stansted")
-                .build()
-        }.build().openTelemetrySdk
+    override val openTelemetry: OpenTelemetry by lazy {
+        AutoConfiguredOpenTelemetrySdk.builder().build().openTelemetrySdk
+    }
 
     data class AuthenticationSettings(
         val username: String = "stansted",
